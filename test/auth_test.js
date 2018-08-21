@@ -20,6 +20,7 @@ describe('User', () => {
   })
 
   describe('/POST Register', () => {
+
     it('should success when all credentials are valid', done => {
       let user = {
         name: `John Doe`,
