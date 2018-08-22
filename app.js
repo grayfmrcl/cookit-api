@@ -1,19 +1,21 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const morgan = require('morgan')
+const cors = require('cors')
 require('dotenv').config()
 
 const routers = require('./routers')
 
 const app = express()
-const port = process.env.PORT || 3000
+let port = process.env.PORT || 3000
 
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
+app.use(cors())
 
-const db_url = process.env.NODE_ENV === 'test' ?
-  process.env.DB_URL :
-  process.env.DB_TEST_URL
+let db_url = process.env.NODE_ENV == 'test' ?
+  process.env.DB_TEST_URL :
+  process.env.DB_URL
 
 mongoose.connect(db_url, { useNewUrlParser: true })
 const db = mongoose.connection
