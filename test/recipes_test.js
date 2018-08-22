@@ -125,14 +125,12 @@ describe('Recipes', () => {
       mockUpLogin((err, token) => {
         if (err) { throw err }
         else {
-          console.log('TOKEN >>', token)
           chai
             .request(base_url)
             .post('/recipes')
             .set('Authorization', `Bearer ${token}`)
             .send(recipe)
             .then(res => {
-              console.log('RES: ', res.body)
               res.status.should.eql(201)
               res.body.should.have.property('success')
               res.body.success.should.be.true
@@ -241,9 +239,74 @@ describe('Recipes', () => {
 
           chai
             .request(base_url)
-            .put('/recipes/' + '123456')
+            .put('/recipes/' + '5b7cd5f35f40022010eca05a')
             .set('Authorization', 'Bearer ' + token)
             .send(updateRecipe)
+            .then(res => {
+              res.status.should.eql(404)
+              done()
+            })
+            .catch(err => done(err))
+        }
+      })
+    })
+
+  })
+
+  describe('DELETE /recipes/:id', () => {
+
+    it('should success when the to be deleted recipe is present and user is authenticated', done => {
+      mockUpLoginAndCreateTestRecipe((err, token, initialRecipe) => {
+        if (err) throw err
+        else {
+          chai
+            .request(base_url)
+            .delete('/recipes/' + initialRecipe._id)
+            .set('Authorization', 'Bearer ' + token)
+            .then(res => {
+              res.status.should.eql(200)
+              res.body.success.should.be.true
+
+              chai
+                .request(base_url)
+                .get('/recipes')
+                .then(res2 => {
+                  res2.status.should.eql(200)
+                  res2.body.should.be.a('array').with.length(0)
+                  done()
+                })
+                .catch(err => done(err))
+
+            })
+            .catch(err => done(err))
+        }
+      })
+    })
+
+    it('should fail when user is not authenticated', done => {
+      mockUpLoginAndCreateTestRecipe((err, token, initialRecipe) => {
+        if (err) throw err
+        else {
+          chai
+            .request(base_url)
+            .delete('/recipes/' + initialRecipe._id)
+            .then(res => {
+              res.status.should.eql(401)
+              done()
+            })
+            .catch(err => done(err))
+        }
+      })
+    })
+
+    it('should fail when recipe id is invalid', done => {
+      mockUpLoginAndCreateTestRecipe((err, token, initialRecipe) => {
+        if (err) throw err
+        else {
+          chai
+            .request(base_url)
+            .delete('/recipes/' + '5b7cd5f35f40022010eca05a')
+            .set('Authorization', 'Bearer ' + token)
             .then(res => {
               res.status.should.eql(404)
               done()

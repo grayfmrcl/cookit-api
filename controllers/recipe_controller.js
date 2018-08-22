@@ -24,7 +24,7 @@ module.exports = {
 
   edit: (req, res, next) => {
     const { title, content, tags } = req.body
-    Recipe.findOne({ _id: req.params.id, user: req.user.id })
+    Recipe.findByIdAndUser(req.params.id, req.user.id)
       .then(recipe => {
         if (recipe) {
           recipe.title = title || recipe.title
@@ -38,12 +38,19 @@ module.exports = {
               })
             })
             .catch(err => next(err))
-        } else { next }
+        } else { next() }
       })
       .catch(err => next(err))
   },
 
-  delete: (req, res, next) => {
-
+  remove: (req, res, next) => {
+    Recipe.deleteOne({ _id: req.params.id, user: req.user.id })
+      .then(deleted => {
+        console.log('DELETED', deleted)
+        if (deleted.n === 1) {
+          res.status(200).json({ success: true })
+        } else { next() }
+      })
+      .catch(err => next(err))
   }
 }

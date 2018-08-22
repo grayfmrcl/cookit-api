@@ -25,4 +25,8 @@ recipeSchema.statics.findByUserId = function (user_id) {
   return this.find({ user: user_id })
 }
 
+recipeSchema.statics.findByIdAndUser = function (recipe_id, user_id) {
+  return this.findOne({ _id: recipe_id, user: user_id })
+}
+
 module.exports = mongoose.model('Recipe', recipeSchema)
