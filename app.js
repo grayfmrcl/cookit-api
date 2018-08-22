@@ -1,5 +1,6 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const morgan = require('morgan')
 require('dotenv').config()
 
 const routers = require('./routers')
@@ -10,7 +11,6 @@ const port = process.env.PORT || 3000
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 
-console.log(process.env.NODE_ENV)
 const db_url = process.env.NODE_ENV === 'test' ?
   process.env.DB_URL :
   process.env.DB_TEST_URL
@@ -21,6 +21,8 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function () {
   console.log(`connected to ${db_url}`)
 });
+
+app.use(morgan('tiny'))
 
 app.use('/', routers)
 
@@ -33,6 +35,8 @@ app.use(function (err, req, res, next) {
     res.status(400).json({
       error: Object.values(err.errors).map(e => e.message)
     })
+  } else if (err.name == 'CastError' && err.kind == 'ObjectId') {
+    res.status(404).json({ error: 'Resource not found.' })
   } else {
     console.log(err)
     res.status(500).json({
