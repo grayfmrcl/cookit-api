@@ -60,6 +60,26 @@ const mockUpLogin = (callback) => {
     })
 }
 
+const mockUpLoginAndCreateTestRecipe = (callback) => {
+  return mockUpLogin((err, token) => {
+    if (err) throw err
+
+    chai
+      .request(base_url)
+      .post('/recipes')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        title: `Basic Omelette`,
+        content: `First get some eggs...`,
+        tags: ['omelette', 'egg']
+      })
+      .end((err, res) => {
+        if (err) callback(err)
+        callback(null, token, res.body.data)
+      })
+  })
+}
+
 describe('Recipes', () => {
 
   beforeEach(done => {
@@ -150,4 +170,90 @@ describe('Recipes', () => {
 
   })
 
+  describe('PUT /recipes/:id', () => {
+
+    it('should success and return the updated recipe object when the to be updated recipe is present and the recipe owner is the user and user is authenticated', done => {
+      mockUpLoginAndCreateTestRecipe((err, token, initialRecipe) => {
+        if (err) throw err
+        else {
+          let updateRecipe = {
+            title: 'Advance omelette',
+            content: 'Second, get some bacon ...',
+            tags: ['omelette', 'eggs', 'bacon']
+          }
+
+          chai
+            .request(base_url)
+            .put('/recipes/' + initialRecipe._id)
+            .set('Authorization', 'Bearer ' + token)
+            .send(updateRecipe)
+            .then(res => {
+              res.status.should.eql(200)
+              res.body.success.should.be.true
+              res.body.data._id.should.eql(initialRecipe._id)
+              res.body.data.user.should.eql(initialRecipe.user)
+              res.body.data.title.should.eql(updateRecipe.title)
+              res.body.data.content.should.eql(updateRecipe.content)
+              res.body.data.tags.should.eql(updateRecipe.tags)
+
+              let updatedAt = new Date(res.body.data.updated_at)
+              let initialDate = new Date(initialRecipe.updated_at)
+              updatedAt.should.be.gt(initialDate)
+              done()
+            })
+            .catch(err => done(err))
+        }
+      })
+    })
+
+    it('should fail when user is not authenticated', done => {
+      mockUpLoginAndCreateTestRecipe((err, token, initialRecipe) => {
+        if (err) throw err
+        else {
+          let updateRecipe = {
+            title: 'Advance omelette',
+            content: 'Second, get some bacon ...',
+            tags: ['omelette', 'eggs', 'bacon']
+          }
+
+          chai
+            .request(base_url)
+            .put('/recipes/' + initialRecipe._id)
+            .send(updateRecipe)
+            .then(res => {
+              res.status.should.eql(401)
+              done()
+            })
+            .catch(err => done(err))
+        }
+      })
+    })
+
+    it('should fail when invalid recipe id', done => {
+      mockUpLoginAndCreateTestRecipe((err, token, initialRecipe) => {
+        if (err) throw err
+        else {
+          let updateRecipe = {
+            title: 'Advance omelette',
+            content: 'Second, get some bacon ...',
+            tags: ['omelette', 'eggs', 'bacon']
+          }
+
+          chai
+            .request(base_url)
+            .put('/recipes/' + '123456')
+            .set('Authorization', 'Bearer ' + token)
+            .send(updateRecipe)
+            .then(res => {
+              res.status.should.eql(404)
+              done()
+            })
+            .catch(err => done(err))
+        }
+      })
+    })
+
+  })
+
 })
+

@@ -23,7 +23,24 @@ module.exports = {
   },
 
   edit: (req, res, next) => {
-
+    const { title, content, tags } = req.body
+    Recipe.findOne({ _id: req.params.id, user: req.user.id })
+      .then(recipe => {
+        if (recipe) {
+          recipe.title = title || recipe.title
+          recipe.content = content || recipe.content
+          recipe.tags = tags || recipe.tags
+          recipe.save()
+            .then(updated_recipe => {
+              res.status(200).json({
+                success: true,
+                data: updated_recipe
+              })
+            })
+            .catch(err => next(err))
+        } else { next }
+      })
+      .catch(err => next(err))
   },
 
   delete: (req, res, next) => {

@@ -6,5 +6,6 @@ const { bearerAuthentication } = require('../helpers/auth_helper')
 
 router.get('/', recipes.get)
 router.post('/', bearerAuthentication, recipes.add)
+router.put('/:id', bearerAuthentication, recipes.edit)
 
 module.exports = router
