@@ -18,6 +18,7 @@ const recipeSchema = new Schema({
 
 recipeSchema.pre('save', function (next) {
   this.updated_at = new Date
+  next()
 })
 
 recipeSchema.statics.findByUserId = function (user_id) {
