@@ -1,5 +1,6 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const morgan = require('morgan')
 require('dotenv').config()
 
 const routers = require('./routers')
@@ -20,6 +21,8 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function () {
   console.log(`connected to ${db_url}`)
 });
+
+app.use(morgan('tiny'))
 
 app.use('/', routers)
 
