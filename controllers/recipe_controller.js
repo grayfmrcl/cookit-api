@@ -1,14 +1,22 @@
 const Recipe = require('../models/recipe')
 
 module.exports = {
-  get: (req, res, next) => {
+  all: (req, res, next) => {
     Recipe.find()
       .then(recipes => {
         res.status(200).json(recipes)
       })
       .catch(err => next(err))
   },
-
+  single: (req, res, next) => {
+    Recipe.findById(req.params.id)
+      .then(recipe => {
+        if (recipe) {
+          res.status(200).json(recipe)
+        } else { next() }
+      })
+      .catch(err => next(err))
+  },
   add: (req, res, next) => {
     const { title, content, tags } = req.body
     let recipe = new Recipe({ user: req.user.id, title, content, tags })
