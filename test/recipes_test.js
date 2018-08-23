@@ -113,6 +113,44 @@ describe('Recipes', () => {
     })
   })
 
+  describe('GET /recipes/:id', () => {
+    it('shold return recipe with the specified id', done => {
+      createTestRecipes()
+        .then(() => {
+
+          chai.request(base_url)
+            .get('/recipes')
+            .then(res => {
+
+              chai.request(base_url)
+                .get('/recipes/' + res.body[0]._id)
+                .then(res2 => {
+                  res2.status.should.eql(200)
+                  res2.body._id.should.eql(res.body[0]._id)
+                  res2.body.title.should.eql(res.body[0].title)
+                  res2.body.content.should.eql(res.body[0].content)
+                  res2.body.tags.should.eql(res.body[0].tags)
+                  done()
+                })
+                .catch(err => done(err))
+
+            })
+            .catch(err => { throw err })
+
+        })
+    })
+
+    it('should fail when the recipe id is invalid or not exist', done => {
+      chai.request(base_url)
+        .get('/recipes/5b7e31f4a422a688e9c69efa')
+        .then(res => {
+          res.status.should.eql(404)
+          done()
+        })
+        .catch(err => done(err))
+    })
+  })
+
   describe('POST /recipes', () => {
 
     it('should success and return the created recipe when using bearer authentiation with valid token', done => {
