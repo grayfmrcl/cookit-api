@@ -1,5 +1,17 @@
 const Recipe = require('../models/recipe')
 
+const mapRecipeBody = reqBody => {
+  return {
+    title,
+    img_url,
+    description,
+    ingredients,
+    directions,
+    estimated_time,
+    notes,
+    tags
+  } = reqBody
+}
 module.exports = {
   all: (req, res, next) => {
     Recipe.find()
@@ -17,9 +29,14 @@ module.exports = {
       })
       .catch(err => next(err))
   },
+
   add: (req, res, next) => {
-    const { title, content, tags } = req.body
-    let recipe = new Recipe({ user: req.user.id, title, content, tags })
+    let recipe = new Recipe(
+      Object.assign(
+        { user: req.user.id },
+        mapRecipeBody(req.body)
+      )
+    )
     recipe.save()
       .then(new_recipe => {
         res.status(201).json({
