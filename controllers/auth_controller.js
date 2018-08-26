@@ -19,13 +19,6 @@ module.exports = {
         }
       })
       .catch(err => next(err))
-
-    let user = new User({ name, email, password })
-    user.save()
-      .then(new_user => {
-        res.status(201).json({ success: true })
-      })
-      .catch(err => next(err))
   },
 
   login: (req, res, next) => {
