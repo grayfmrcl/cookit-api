@@ -9,14 +9,9 @@ const recipeSchema = new Schema({
   title: { type: String, default: 'untitled' },
   img_url: { type: String, default: 'https://images.unsplash.com/photo-1495195134817-aeb325a55b65?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=1bdd3a5305d7913b82929130ae81fef6&auto=format&fit=crop&w=1355&q=80' },
   description: String,
-  ingredients: [{
-    name: String,
-    amount: Number,
-    unit: String
-  }],
+  ingredients: [{ type: String }],
   directions: [{ type: String }],
   estimated_time: { type: Number, default: 5 },
-  notes: { type: String },
   tags: [{ type: String }],
   updated_at: Date
 })
